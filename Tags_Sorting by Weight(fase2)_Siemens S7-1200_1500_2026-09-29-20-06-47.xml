@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Tagtable name="Sorting by Weight(fase2)">
+  <!-- exported by FACTORY I/O version 2.5.10 -->
+  <Tag type="Bool" addr="%I0.0">SensorEntrada</Tag>
+  <Tag type="Bool" addr="%I0.1">SensorMedida</Tag>
+  <Tag type="Bool" addr="%I0.2">Sensor_Salida_Basc</Tag>
+  <Tag type="Bool" addr="%I0.3">Salida_Izq</Tag>
+  <Tag type="Bool" addr="%I0.4">Sensor_salida_Izq</Tag>
+  <Tag type="Bool" addr="%I0.5">Salida_Recto</Tag>
+  <Tag type="Bool" addr="%I0.6">Sensor_Salida_Rect</Tag>
+  <Tag type="Bool" addr="%I0.7">Salida_Derech</Tag>
+  <Tag type="Bool" addr="%I1.0">Sensor_salida_derech</Tag>
+  <Tag type="Bool" addr="%I1.1">Start</Tag>
+  <Tag type="Bool" addr="%I1.2">Reset</Tag>
+  <Tag type="Bool" addr="%I1.3">Stop</Tag>
+  <Tag type="Bool" addr="%I1.4">Auto</Tag>
+  <Tag type="Bool" addr="%I1.5">FACTORY I/O (Running)</Tag>
+  <Tag type="Bool" addr="%Q0.0">CInta1</Tag>
+  <Tag type="Bool" addr="%Q0.1">Cinta_Basc</Tag>
+  <Tag type="Bool" addr="%Q0.2">Envio_Izq</Tag>
+  <Tag type="Bool" addr="%Q0.3">Cinta4(Izquierda)</Tag>
+  <Tag type="Bool" addr="%Q0.4">Envio_Derech</Tag>
+  <Tag type="Bool" addr="%Q0.5">Cinta2(Derecha)</Tag>
+  <Tag type="Bool" addr="%Q0.6">Empuje</Tag>
+  <Tag type="Bool" addr="%Q0.7">Cinta3((Recto)</Tag>
+  <Tag type="Bool" addr="%Q1.0">Start light</Tag>
+  <Tag type="Bool" addr="%Q1.1">Reset light</Tag>
+  <Tag type="Bool" addr="%Q1.2">Stop light</Tag>
+  <Tag type="Real" addr="%ID100">Báscula</Tag>
+  <Tag type="DInt" addr="%QD100">Left count</Tag>
+  <Tag type="DInt" addr="%QD104">Forward count</Tag>
+  <Tag type="DInt" addr="%QD108">Right count</Tag>
+  <Tag type="DInt" addr="%QD112">Weight</Tag>
+</Tagtable>
