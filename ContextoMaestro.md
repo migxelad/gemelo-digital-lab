@@ -69,3 +69,201 @@ El sistema conecta en bucle cerrado:
 ## 6. Arquitectura de Control, Comunicaciones y Guías Operativas
 
 ### 6.1. Diagrama de Enlace y Parámetros de Red
+
+HOST (Windows 10/11 - Tarjeta Gráfica GPU)
+┌──────────────────────────────────────────────────────────────┐
+│ Machine Simulator (Nirtec) v5                                │
+│ - Driver: Siemens S7 (TCP/IP / Ethernet)                     │
+│   IP Destino: 192.168.15.131 (IP de la VM)                   │
+│   Puerto: 102 | Rack: 0 | Slot: 1                            │
+│   Offsets: Start byte 10 (Inputs y Outputs)                  │
+└──────────────┬──────────────────────────────▲────────────────┘
+│ TCP :102                     │ Modbus TCP :502
+▼                              ▼
+┌──────────────────────────────┐  ┌────────────────────────────┐
+│ VM VMware (Modo Bridged)     │  │ MESA DE TRABAJO (FÍSICA)   │
+│ IP: 192.168.15.131           │  │ ESP32 NodeMCU (WROOM-32)   │
+│                              │  │ - Botonera Start / Stop    │
+│  NetToPLCsim (Admin)         │  │ - Módulo Relés 5V          │
+│  - Network IP: 192.168.15.131│  │ - Sensor Inductivo (Fallo) │
+│  - PLCSIM IP:  192.168.0.1   │  │ - Motor NEMA 17 + A4988    │
+│  - Rack 0 / Slot 1           │  └────────────────────────────┘
+│         ▲                    │
+│         ▼                    │
+│  S7-PLCSIM (CPU S7-1511-1 PN)│
+│  IP: 192.168.0.1             │
+│  TIA Portal V21              │
+└──────────────────────────────┘
+
+
+### 6.2. Procedimiento Paso a Paso: Conexión Machine Simulator (Host) ↔ VMware (TIA Portal + PLCSIM)
+1. **Configuración de Hardware y Permisos en TIA Portal (Dentro de la VM):**
+   * En el árbol del proyecto, clic derecho en el PLC `CPU 1511-1 PN` > **Properties**[cite: 7].
+   * En *Protection & Security > Connection mechanisms*, marcar obligatoriamente **"Permit access with PUT/GET communication from remote partner"**[cite: 7].
+   * En *Protection & Security > Access control*, seleccionar **Full access (no protection)**[cite: 7].
+   * En las propiedades generales del proyecto (clic derecho sobre el nombre raíz del proyecto > Properties > Protection), verificar que esté marcada la casilla **"Support simulation during block compilation"**[cite: 7, 9].
+   * Compilar hardware y software por completo: clic derecho en PLC > **Compile > Hardware and software (rebuild all)**[cite: 7].
+2. **Arranque y Puesta en RUN de S7-PLCSIM (Dentro de la VM):**
+   * Iniciar la simulación desde el icono *Start simulation* o clic derecho en el PLC > *Start simulation*[cite: 7, 9].
+   * En la ventana *Extended download to device*:
+     * *PG/PC interface:* Seleccionar `Siemens PLCSIM Virtual Ethernet Adapter` (o `PLCSIM` si no se bloquea)[cite: 7].
+     * *Connection to interface/subnet:* Seleccionar `PN/IE_1` (o subred configurada)[cite: 7].
+     * Pulsar **Start search**, seleccionar el autómata con IP `192.168.0.1` en la tabla y pulsar **Load**[cite: 7].
+   * En la ventana final de carga, en la columna *Action* seleccionar **Start module** y pulsar **Finish**[cite: 7].
+   * *Verificación:* En la ventana de S7-PLCSIM, la `Instance_1` debe mostrar el indicador LED en verde fijo (**RUN**)[cite: 7].
+3. **Liberación de Puerto y Arranque de NetToPLCsim (Dentro de la VM):**
+   * Asegurarse de que el Firewall de Windows en la VM esté desactivado para redes públicas y privadas[cite: 5, 7].
+   * Abrir `NetToPLCsim.exe` con clic derecho > **Ejecutar como administrador**[cite: 7].
+   * Si salta el aviso *"Port 102 is in use"*, aceptar para detener el servicio de Windows `SIMATIC S7DOS Help Service`[cite: 7].
+   * Pulsar **Add**:
+     * *Network IP Address:* Seleccionar la IP local de la VM (ej. `192.168.15.131` obtenida mediante `ipconfig` en CMD)[cite: 5, 7].
+     * *Plcsim IP Address:* Escribir la IP interna del PLC simulado (`192.168.0.1`)[cite: 5, 7].
+     * *Plcsim Rack/Slot:* Configurar obligatoriamente **Rack 0** y **Slot 1** (la CPU del S7-1500 reside siempre en el Slot 1; Slot 2 provocará rechazo de conexión)[cite: 5, 7].
+     * *Enable TSAP check:* Desmarcado[cite: 5].
+   * Pulsar **OK** y después **Start server**[cite: 5, 7].
+   * *Verificación:* El estado de NetToPLCsim pasa a `RUNNING` y el puerto 102 marca `OK`[cite: 5, 7].
+4. **Configuración del Driver de Siemens en Machine Simulator (En el PC Host):**
+   * Abrir Machine Simulator y en la barra superior acceder a **DRIVERS E/S** (o *Drivers*)[cite: 5, 7].
+   * En el desplegable de controladores, seleccionar **Siemens S7 (TCP/IP / Ethernet)** y pulsar en **Configure / Settings**[cite: 5, 7].
+   * Introducir los parámetros de enlace:
+     * *IP Address / Host:* La IP física de la VM (`192.168.15.131`), **nunca** la 192.168.0.1[cite: 5, 7].
+     * *Port:* `102`[cite: 5, 7].
+     * *Rack:* `0` | *Slot:* `1`[cite: 5, 7].
+     * *Network Adapter:* Seleccionar la tarjeta de red física activa del host (Realtek, Ethernet o Wi-Fi), nunca *Loopback*[cite: 7, 11].
+   * **Offsets de memoria (Contrato del Byte 10):**
+     * *S7 Inputs/EasyPLC Driver Outputs (Start byte):* `10`[cite: 5, 7].
+     * *S7 Outputs/EasyPLC Driver Inputs (Start byte):* `10`[cite: 5, 7].
+     * *Byte length:* `2` (o `4`)[cite: 7].
+   * Pulsar **OK** para cerrar ajustes y conectar el driver[cite: 7].
+   * *Verificación:* El indicador de estado pasa a **Connected** (verde). Al pulsar **Play** en la escena 3D, las cintas y actuadores responderán en tiempo real a las salidas `%Q10.x` gobernadas desde TIA Portal[cite: 5, 7].
+
+### 6.3. Procedimiento Paso a Paso: Restauración del Snapshot de la VM y Gestión de Licencia
+1. **Backup Preventivo del Proyecto (Antes del Día 20 de la Trial):**
+   * Abrir el proyecto en TIA Portal dentro de la máquina virtual[cite: 5].
+   * Ir al menú superior **Project > Archive** y generar el archivo comprimido `.zap21`[cite: 5].
+   * Mover el archivo `.zap21` a la **Carpeta Compartida** (`\\vmware-host\Shared Folders\Factory-VM`)[cite: 5].
+   * *Verificación crítica:* Comprobar desde el explorador de Windows del PC físico (Host) que el archivo `.zap21` o proyecto está físicamente a salvo en el disco SSD principal[cite: 5].
+2. **Apagado del Sistema Invitado:**
+   * Cerrar TIA Portal y Automation License Manager[cite: 5].
+   * En el Windows de la VM, ir a Inicio > **Apagar**[cite: 5]. Esperar a que la ventana de VMware quede en negro por completo[cite: 5].
+3. **Restauración del Snapshot ("Día 1 - TIA Limpio"):**
+   * En VMware Workstation, con la VM apagada, ir al menú superior: **VM > Snapshot > Snapshot Manager** (o *VM > Snapshot*)[cite: 5].
+   * Seleccionar la instantánea original de guardado **"Día 1 - TIA Limpio"** (tomada con TIA Portal y PLCSIM instalados al 100% pero sin haber sido abiertos nunca)[cite: 5, 9].
+   * Pulsar **Restore / Go to** y confirmar[cite: 5].
+   * *Verificación:* VMware revierte el disco `.vmdk` al estado inicial virgen en pocos segundos[cite: 5].
+4. **Reactivación de la Prueba de 21 Días y Recuperación:**
+   * Encender la máquina virtual[cite: 5].
+   * Reconfigurar la carpeta compartida si fuera necesario (*VM > Settings > Options > Shared Folders > Always enabled*)[cite: 5].
+   * Arrastrar el proyecto `.zap21` desde la carpeta compartida al disco virtual[cite: 5].
+   * Abrir TIA Portal. Al saltar la ventana de *Automation License Manager*, seleccionar **STEP 7 Professional** y pulsar **Activate Trial (21 days)**[cite: 5].
+   * *Comprobación:* En Automation License Manager (ALM), en la unidad `C:`, verificar que la licencia de prueba figura activa con validez de 21 días[cite: 5].
+5. **Plan de Contingencia ("Tierra Quemada" / Reinstalación Limpia):**
+   * Si en futuras revisiones el ALM detecta anomalías de reloj y marca la licencia como *Defective*, descartar el Snapshot[cite: 5].
+   * Eliminar la máquina virtual por completo y crear una nueva VM con Windows limpio (o restaurar un snapshot "Windows Virgen" previo a Siemens)[cite: 5].
+   * Al reinstalar TIA Portal y PLCSIM desde los instaladores `.iso` guardados en el host, VMware generará un nuevo UUID y MAC virtual, garantizando 21 días oficiales al 100% de efectividad sin coste[cite: 5].
+
+---
+
+## 7. Mapa de Entradas y Salidas
+
+### Entradas Digitales (PLC Inputs)
+* `%I10.0` - `IN_HIL_BtnStart` (BOOL): Pulsador físico real en protoboard [Confirmado].
+* `%I10.1` - `IN_HIL_BtnStop` (BOOL): Pulsador físico real de parada/rearme [Confirmado].
+* `%I10.2` - `IN_HIL_SensorFault` (BOOL): Sensor inductivo físico (inyección de fallos) [Confirmado].
+* `%I10.3` - `IN_Sensor_BufferPre` (BOOL): Fotocélula previa a tope dosificador [Confirmado].
+* `%I10.4` - `IN_Sensor_Height_S` (BOOL): Fotocélula inferior cota formato S [Confirmado].
+* `%I10.5` - `IN_Sensor_Height_M` (BOOL): Fotocélula intermedia cota formato M [Confirmado].
+* `%I10.6` - `IN_Sensor_Height_L` (BOOL): Fotocélula superior cota formato L [Confirmado].
+* `%I10.7` - `IN_Sensor_FillPos` (BOOL): Detección de botella centrada en boquilla [Propuesta técnica].
+* `%I11.0` - `IN_Sensor_ScaleStop` (BOOL): Fotocélula de centrado en báscula [Confirmado][cite: 7].
+* `%I11.1` - `IN_Cobot_Done` (BOOL): Señal de fin de ciclo de taponado [Confirmado].
+* `%I11.2` - `IN_Sensor_ExitDetect` (BOOL): Fotocélula de evacuación final [Confirmado].
+
+### Salidas Digitales (PLC Outputs)
+* `%Q10.0` - `OUT_Conveyor_Entry` (BOOL): Motor cinta de entrada / Buffer [Confirmado][cite: 7].
+* `%Q10.1` - `OUT_BladeStop` (BOOL): Accionamiento tope neumático vertical [Confirmado][cite: 7].
+* `%Q10.2` - `OUT_Nozzle_Down` (BOOL): Descenso vertical boquilla de dosificación [Confirmado].
+* `%Q10.3` - `OUT_Valve_Liquid` (BOOL): Electroválvula de llenado de líquido [Confirmado].
+* `%Q10.4` - `OUT_Conveyor_Scale` (BOOL): Motor de cinta sobre báscula [Confirmado][cite: 7].
+* `%Q10.5` - `OUT_Pusher_Reject` (BOOL): Empujador neumático descarte a 90° [Confirmado].
+* `%Q10.6` - `OUT_Cobot_Start` (BOOL): Disparo de ciclo de cierre/roscado del cobot [Confirmado].
+* `%Q10.7` - `OUT_HIL_RelayAlarm` (BOOL): Relé 1 / Maniobra física de alarma o rechazo [Confirmado].
+* `%Q11.0` - `OUT_HIL_RelayCycle` (BOOL): Relé 2 / Confirmación física de ciclo en marcha [Confirmado].
+
+### Registros Analógicos y Posicionamiento
+* `%IW64` - `ANA_Tank_Level` (INT, 0-27648): Nivel transmisor depósito (0.0 - 100.0 %) [Confirmado].
+* `%QW64` - `CMD_Pump_Inflow` (INT, 0-27648): Salida analógica PID bomba/válvula [Confirmado].
+* `%ID100` o `%IW66` - `ANA_Scale_Weight` (REAL/INT): Medida de masa en báscula (0.0 - 2000.0 g) [Confirmado][cite: 7].
+* `%QW66` - `HIL_NEMA17_Steps` (INT): Consigna angular para motor paso a paso espejo [Validado en Modbus].
+
+---
+
+## 8. Secuencias de Funcionamiento y Lógica PLC
+* **Estructura en TIA Portal:**
+  * `OB1`: Bucle determinista maestro, modos de marcha, llamadas a secuenciadores y gestión de interlocks[cite: 7].
+  * `OB30` (Interrupción cíclica a 100 ms): Ejecución dedicada del lazo `PID_Compact` de nivel de líquido.
+  * `FB_Buffer_Manager` (Ladder / KOP): Máquina de estados (GRAFCET) para retención y suelta unitaria de piezas.
+  * `FB_Quality_Engine` / `FC_Analog_Scaling` (SCL): Tratamiento analógico con `NORM_X`/`SCALE_X`, evaluación matricial de tolerancias y asignación de receta.
+  * `DB_Tracking_FIFO`: Registro dinámico para correlacionar el envase medido con la botella que entra a la báscula.
+
+---
+
+## 9. Hardware Físico e Integración HIL
+* **Microcontrolador ESP32 (WROOM-32):** Nodo esclavo Modbus TCP sobre Wi-Fi local (puerto 502) con temporizador *Watchdog/Keep-Alive* (1500 ms)[cite: 5].
+* **Módulo de Relés 5V (4 canales optoacoplados):** Maniobra de conmutación audible ante descartes y señalización física, alimentado en riel externo independiente para prevenir *brownouts*.
+* **Instrumentación de campo:** Pulsadores cableados en pull-up interno hacia masa; sensor inductivo industrial tubular con divisor resistivo de tensión para adaptar señal de 12/24V a 3.3V GPIO[cite: 5].
+* **Cinemática espejo:** Motor bipolar NEMA 17 gobernado por driver A4988 (pines Step/Dir en GPIOs 25, 26 y 27) girando en sincronía con el proceso virtual.
+* **Infraestructura de taller auxiliar:** Osciloscopio/multímetro FNIRSI 2C53T (3 en 1 portátil), fuente lineal regulable 30V/5A, estación de soldadura rápida T12.
+
+---
+
+## 10. Decisiones Vigentes y Motivos
+1. **Selección de Machine Simulator Suite:** Solución de licencia fija (92 €), importación CAD de envases reales y drivers nativos sin sobrecarga gráfica[cite: 5].
+2. **Contrato del Byte 10:** Blindaje de memoria frente a la sobreescritura interna de Siemens PLCSIM[cite: 7, 11].
+3. **Proceso híbrido continuo/discreto:** Inclusión del lazo PID de nivel para maximizar el rigor técnico y la densidad lógica del proyecto.
+4. **Repositorio centralizado en GitHub (`gemelo-digital-lab`):** Trazabilidad integral de código C++, exportaciones SCL, documentación y esquemas eléctricos.
+
+---
+
+## 11. Propuestas Descartadas o Sustituidas y Motivos
+* **Maqueta extensa de 5 ramales en Factory I/O:** Descartada por saturación física (caída de FPS < 25) e inviabilidad de coste por suscripción recurrente[cite: 5].
+* **Uso no preventivo de Snapshots:** Queda prohibido tomar instantáneas con la VM encendida o intentar alterar el reloj interno de Windows. Los snapshots se ejecutan estrictamente en frío sobre el "Día 1" virgen tras exportar los proyectos fuera del entorno virtual[cite: 5].
+
+---
+
+## 12. Problemas Encontrados y Soluciones Probadas
+1. **Bloqueo del puerto TCP 102 en la VM:** Conflicto con el servicio `SIMATIC S7DOS Help Service`. Solución: detención previa del servicio y ejecución de NetToPLCsim como Administrador[cite: 7].
+2. **Rechazo de conexión en NetToPLCsim por Slot incorrecto:** Denegado al configurar Slot 2. Solución: fijar Slot 1 correspondiente a la CPU S7-1500[cite: 7, 11].
+3. **Pérdida de comunicación VM-Host:** Fallos en adaptador NAT. Solución: configurar adaptador de VMware en modo Bridged sobre la interfaz de red física activa[cite: 7, 11].
+4. **Valores analógicos y digitales forzados a cero:** Solucionado mediante el desplazamiento de offset al Byte 10[cite: 7, 11].
+5. **Bloqueo al descargar a PLCSIM:** TIA Portal no detectaba el autómata. Solución: seleccionar `Siemens PLCSIM Virtual Ethernet Adapter` en PG/PC interface y detener temporalmente NetToPLCsim durante la descarga del programa[cite: 7].
+
+---
+
+## 13. Dudas y Tareas Pendientes
+* **Resolución del dilema cinemático de packaging:** Selección final entre pórtico cartesiano XYZ (matrices en SCL) y brazo robótico de 6 ejes con garra de vacío.
+* **Despliegue de los bloques SCL de la Fase 2:** Implementación de la función `FC_Analog_Scaling` y estructura UDT de recetas.
+* **Pruebas institucionales en UPC EEBE:** Coordinación con el departamento para transferir el proyecto a un autómata SIMATIC S7-1500 real.
+
+---
+
+## 14. Riesgos Técnicos y Pruebas Necesarias
+* **Determinismo de red:** Comprobación de que la latencia acumulada entre Machine Simulator, NetToPLCsim y el ESP32 no exceda los 50 ms.
+* **Saturación de recursos de cómputo:** Monitoreo de memoria RAM y núcleos de CPU durante la ejecución simultánea de VMware y Machine Simulator a 60 Hz[cite: 9].
+
+---
+
+## 15. Cronología de Avances
+* *Septiembre 2026:* Definición de arquitectura base IT/OT y adquisición escalonada de componentes de instrumentación[cite: 5, 8].
+* *Octubre 2026 (Semana 1):* Configuración de la máquina virtual VMware, pasarela NetToPLCsim en puerto 102 y primer lazo cerrado HIL operativo[cite: 7, 11].
+* *Octubre 2026 (Semana 2):* Depuración de la estación Buffer en Ladder y decisión de migración a Machine Simulator[cite: 5].
+* *Octubre 2026 (Semana 3):* Rediseño hacia la célula flexible de embotellado con lazo PID y redacción de propuesta para TFG en la UPC EEBE.
+* *Octubre 2026 (Semana 4):* Escena 3D ensamblada en Machine Simulator, verificación del enlace S7 Ethernet hacia PLCSIM V21 y preparación de bloques en SCL[cite: 7].
+
+---
+
+## 16. Fuentes Revisadas
+1. Historial del cuaderno de trabajo y sesiones de diseño metodológico IT/OT[cite: 5, 7, 11].
+2. Documento de propuesta técnica de célula de embotellado (`Propuesta Gemelo Digital Embotellado (Machine Simulator + TIA Portal)_MiguelDanielAlvarez.gdoc` y `.pdf`).
+3. Formulación técnica académica inicial para la UPC EEBE (`Propuesta Técnica - Gemelo Digital HIL IT-OT (UPC EEBE).gdoc`).
+4. Repositorio GitHub `migxelad/gemelo-digital-lab` (`AGENTS.md` y `HITOS.md`).
