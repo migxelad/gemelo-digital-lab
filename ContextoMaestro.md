@@ -172,40 +172,26 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 
 ---
 
-## 7. Mapa de Entradas y Salidas
+## 7. Tags PLC vigentes (captura TIA Portal)
 
-### Entradas Digitales (PLC Inputs)
-* `%I10.0` - `IN_HIL_BtnStart` (BOOL): Pulsador físico real en protoboard [Confirmado].
-* `%I10.1` - `IN_HIL_BtnStop` (BOOL): Pulsador físico real de parada/rearme [Confirmado].
-* `%I10.2` - `IN_HIL_SensorFault` (BOOL): Sensor inductivo físico (inyección de fallos) [Confirmado].
-* `%I10.3` - `IN_Sensor_Presencia` (BOOL): Trigger cenital de clasificación de altura [Validado; asignación anterior de BufferPre pendiente de armonización].
-* `%I10.4` - `IN_Sensor_Height_S` (BOOL): Fotocélula inferior de clasificación de altura [Validado].
-* `%I10.5` - `IN_Sensor_Height_M` (BOOL): Fotocélula intermedia de clasificación de altura [Validado].
-* `%I10.6` - `IN_Sensor_Height_L` (BOOL): Fotocélula superior de clasificación de altura [Validado].
-* `%I10.7` - `IN_Sensor_FillPos` (BOOL): Detección de botella centrada en boquilla [Propuesta técnica].
-* `%I11.0` - `IN_Sensor_ScaleStop` (BOOL): Fotocélula de centrado en báscula [Confirmado][cite: 7].
-* `%I11.1` - `IN_Cobot_Done` (BOOL): Señal de fin de ciclo de taponado [Confirmado].
-* `%I11.2` - `IN_Sensor_ExitDetect` (BOOL): Fotocélula de evacuación final [Confirmado].
+La captura más reciente del PLC `PLC_1 [CPU 1511-1 PN]` y su Default tag table es la referencia vigente. Los mapas de tags anteriores quedan obsoletos y no deben usarse para asignaciones o código nuevo. Solo se consideran confirmadas las variables visibles en esta tabla; no se infieren direcciones para señales que no aparecen.
 
-### Salidas Digitales (PLC Outputs)
-* `%Q10.0` - `Cinta1` / `OUT_Conveyor_Entry` (BOOL): Motor de transporte continuo [Validado en OB1].
-* `%Q10.1` - `Cinta2_DeteccionSize` (BOOL): Motor de la cinta de detección de altura [Validado en OB1; mapeo de BladeStop pendiente de armonización].
-* `%Q10.2` - `OUT_Nozzle_Down` (BOOL): Descenso vertical boquilla de dosificación [Confirmado].
-* `%Q10.3` - `OUT_Valve_Liquid` (BOOL): Electroválvula de llenado de líquido [Confirmado].
-* `%Q10.4` - `OUT_Conveyor_Scale` (BOOL): Motor de cinta sobre báscula [Confirmado][cite: 7].
-* `%Q10.5` - `OUT_Pusher_Reject` (BOOL): Empujador neumático descarte a 90° [Confirmado].
-* `%Q10.6` - `OUT_Cobot_Start` (BOOL): Disparo de ciclo de cierre/roscado del cobot [Confirmado].
-* `%Q10.7` - `OUT_HIL_RelayAlarm` (BOOL): Relé 1 / Maniobra física de alarma o rechazo [Confirmado].
-* `%Q11.0` - `OUT_HIL_RelayCycle` (BOOL): Relé 2 / Confirmación física de ciclo en marcha [Confirmado].
+| Nombre | Tipo | Dirección | Uso |
+|---|---|---|---|
+| `System_Byte` | Byte | `%MB1` | Tag de sistema mostrado en TIA |
+| `FirstScan` | Bool | `%M1.0` | Marca de primer ciclo |
+| `DiagStatusUpdate` | Bool | `%M1.1` | Marca de diagnóstico |
+| `AlwaysTRUE` | Bool | `%M1.2` | Constante lógica |
+| `AlwaysFALSE` | Bool | `%M1.3` | Constante lógica |
+| `Cinta1` | Bool | `%Q10.0` | Salida de cinta 1 |
+| `Cinta2_HeightSize` | Bool | `%Q10.1` | Salida de cinta de detección de altura |
+| `IN_Sensor_Presencia` | Bool | `%I10.3` | Trigger de presencia/cota cenital |
+| `IN_Sensor_Height_S` | Bool | `%I10.4` | Fotocélula de cota S |
+| `IN_Sensor_Height_M` | Bool | `%I10.5` | Fotocélula de cota M |
+| `IN_Sensor_Height_L` | Bool | `%I10.6` | Fotocélula de cota L |
+| `Lectura_Completada` | Bool | `%M10.1` | Marca de lectura completada |
 
-### Registros Analógicos y Posicionamiento
-* `%IW64` - `ANA_Tank_Level` (INT, 0-27648): Nivel transmisor depósito (0.0 - 100.0 %) [Confirmado].
-* `%QW64` - `CMD_Pump_Inflow` (INT, 0-27648): Salida analógica PID bomba/válvula [Confirmado].
-* `%ID100` o `%IW66` - `ANA_Scale_Weight` (REAL/INT): Medida de masa en báscula (0.0 - 2000.0 g) [Confirmado][cite: 7].
-* `%QW66` - `HIL_NEMA17_Steps` (INT): Consigna angular para motor paso a paso espejo [Validado en Modbus].
-
----
-
+Las E/S digitales de proceso visibles respetan la Regla del Byte 10. Las marcas `%M` y el byte de sistema `%MB1` son memoria interna y no representan asignaciones de E/S de proceso. Los tags de pesaje, Buffer, Blade Stop y otras estaciones no quedan confirmados por esta captura y requieren una fuente actual antes de incorporarlos al mapa.
 ## 8. Secuencias de Funcionamiento y Lógica PLC
 * **Estructura en TIA Portal:**
   * `OB1`: Bucle determinista maestro, modos de marcha, llamadas a secuenciadores y gestión de interlocks[cite: 7].
@@ -252,7 +238,6 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 * **Resolución del dilema cinemático de packaging:** Selección final entre pórtico cartesiano XYZ (matrices en SCL) y brazo robótico de 6 ejes con garra de vacío.
 * **Estación de altura:** implementar tres contadores ascendentes `CTU` (S/M/L) en `DB_Production` para productividad acumulada.
 * **Estación 4 — Báscula:** acoplar la báscula dinámica e implementar parada de 1.0 s con TON para estabilizar la célula de carga antes de evaluar masa y tolerancias.
-* **Mapa E/S:** resolver la reasignación de `IN_Sensor_BufferPre` y `OUT_BladeStop` tras incorporar `IN_Sensor_Presencia` y la segunda cinta.
 * **Pruebas institucionales en UPC EEBE:** Coordinación con el departamento para transferir el proyecto a un autómata SIMATIC S7-1500 real.
 
 ---

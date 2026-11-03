@@ -45,3 +45,11 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Decisiones tomadas y por qué:** El SCL se versiona por separado del contexto para facilitar revisión e importación a TIA Portal. Se normalizó `Tolereance_g` como `Tolerance_g`, nombre registrado en el UDT.
 - **Pendiente / siguiente paso:** Importar/comparar el archivo con FC1 en TIA Portal y confirmar compilación; implementar los CTU de producción y la lógica de estabilización de báscula.
 - **Archivos tocados:** `tia_portal/exports/scl/FC_HeightClassification.scl`, `ContextoMaestro.md`, `HITOS.md`.
+
+## 2026-11-03 — Actualización de tags PLC según captura de TIA Portal
+
+- **Qué funciona ahora:** Queda registrada como vigente la tabla visible de `PLC_1 [CPU 1511-1 PN]`: `Cinta1`, `Cinta2_HeightSize`, sensores de altura, trigger de presencia y `Lectura_Completada`, además de las marcas internas mostradas.
+- **Qué cambió en el mapa de E/S o en bloques:** `%Q10.1` se identifica como `Cinta2_HeightSize`; `%I10.3` como `IN_Sensor_Presencia`; `%I10.4`–`%I10.6` como sensores S/M/L; `%M10.1` como `Lectura_Completada`. La tabla anterior del contexto se sustituyó por los tags confirmados en la captura.
+- **Decisiones tomadas y por qué:** La captura más reciente prevalece sobre los mapas anteriores. Las señales que no aparecen en ella se consideran no confirmadas y no se les asignan direcciones por inferencia.
+- **Pendiente / siguiente paso:** Actualizar el código SCL/OB1 para usar exactamente `Cinta2_HeightSize` y definir con una captura o exportación vigente los tags de Buffer, Blade Stop, pesaje y resto de estaciones antes de programarlos.
+- **Archivos tocados:** `ContextoMaestro.md`, `HITOS.md`.
