@@ -1,4 +1,4 @@
-Última actualización: 2026-11-01
+Última actualización: 2026-11-03
 
 # HITOS.md — Registro Cronológico del Proyecto
 
@@ -29,3 +29,11 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
   - `AGENTS.md`
   - `HITOS.md`
   - `README.md`
+
+## 2026-11-03 — Validación de clasificación de altura al vuelo
+
+- **Qué funciona ahora:** Clasificación S/M/L sin parada de cinta en Machine Simulator v5; comunicación con TIA Portal V21 / S7-PLCSIM mediante NetToPLCsim TCP 102 (Rack 0, Slot 1) en la IP validada `192.168.15.138`. La caja L conmuta `FormatID` a 3 en la Watch Table. `FC_HeightClassification` actualiza la receta activa y la conserva sin presencia.
+- **Qué cambió en el mapa de E/S o en bloques:** Trigger cenital `IN_Sensor_Presencia` en `%I10.3`; fotocélulas S/M/L en `%I10.4`–`%I10.6`. OB1 acciona continuamente `Cinta1` (`%Q10.0`) y `Cinta2_DeteccionSize` (`%Q10.1`) y llama incondicionalmente a FC1. La FC prioriza L→M→S y actualiza `DB_Production.CurrentRecipe`.
+- **Decisiones tomadas y por qué:** Se suprime el TON de parada en altura para evitar interrupciones mecánicas; la prueba observada en escena confirma la conmutación durante el avance. La parada de 1.0 s se reserva a la báscula para estabilizar la medida.
+- **Pendiente / siguiente paso:** Crear tres contadores CTU por formato; integrar báscula con parada TON de 1.0 s; armonizar el mapa global, ya que las asignaciones anteriores de `IN_Sensor_BufferPre` (%I10.3) y `OUT_BladeStop` (%Q10.1) colisionan con las nuevas señales de altura y segunda cinta.
+- **Archivos tocados:** `ContextoMaestro.md` y `HITOS.md` (documentación actualizada en este commit); proyecto TIA Portal `SortreingByWeight.zap21` (OB1, FC_HeightClassification [FC1], `typeRecipe` [UDT1]) y escena Machine Simulator v5 (pórtico y sensor cenital), según el hito aportado.

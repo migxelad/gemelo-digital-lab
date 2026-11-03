@@ -38,11 +38,18 @@ El sistema conecta en bucle cerrado:
    * Cinta de alimentación gobernada por motor digital (`OUT_Conveyor_Entry`).
    * Retención unitaria mediante cilindro neumático vertical (*Blade Stop*, `OUT_BladeStop`) supervisado por fotocélula de detección previa (`IN_Sensor_BufferPre`)[cite: 11].
 3. **Estación 2 — Clasificación Dimensional de Altura y Recetas:**
-   * Columna vertical de fotocélulas que discrimina el formato de envase antes de la boquilla:
-     * Formato Small (S): Sensor inferior activo (`IN_Sensor_Height_S`). Consigna de llenado: 25 cl (250 ml), tiempo: 1.5 s, tolerancia de masa: Nominal S ± 8 g.
-     * Formato Medium (M): Sensores inferior y medio activos (`IN_Sensor_Height_M`). Consigna: 50 cl (500 ml), tiempo: 3.0 s, tolerancia de masa: Nominal M ± 12 g.
-     * Formato Large (L): Sensores inferior, medio y superior activos (`IN_Sensor_Height_L`). Consigna: 75/100 cl, tiempo: 4.5 s, tolerancia de masa: Nominal L ± 18 g.
-   * Generación de estructura de datos de receta (UDT) en SCL.
+   * Clasificación validada "al vuelo" en Machine Simulator v5 mediante tres fotocélulas discretas independientes y una fotocélula cenital de trigger:
+     * `%I10.3` — `IN_Sensor_Presencia`: detección cenital de centrado; habilita la lectura en el plano de medida.
+     * `%I10.4` — `IN_Sensor_Height_S`: cota baja.
+     * `%I10.5` — `IN_Sensor_Height_M`: cota intermedia.
+     * `%I10.6` — `IN_Sensor_Height_L`: cota alta.
+   * `FC_HeightClassification` [FC1], en SCL, evalúa solo cuando `IN_Sensor_Presencia` está activo y prioriza las cotas de mayor a menor (L → M → S). Actualiza `DB_Production.CurrentRecipe` (`typeRecipe`) y conserva la receta anterior cuando no hay presencia:
+     * L: `FormatID := 3`, `TargetVolume_cl := 75.0`, `FillTime := T#4S_500MS`, `Tolerance_g := 18.0`.
+     * M: `FormatID := 2`, `TargetVolume_cl := 50.0`, `FillTime := T#3S`, `Tolerance_g := 12.0`.
+     * S: `FormatID := 1`, `TargetVolume_cl := 25.0`, `FillTime := T#1S_500MS`, `Tolerance_g := 8.0`.
+   * Validación empírica: el `FormatID` conmuta a 3 al pasar una caja L sin detener la cinta; se observó en la Watch Table con PLCSIM V21 y NetToPLCsim.
+   * En esta estación no se usa TON de parada. La parada de 1.0 s queda reservada a la báscula de la Estación 4.
+   * **Pendiente de armonización del mapa global:** la documentación anterior asignaba `%I10.3` a `IN_Sensor_BufferPre` y `%Q10.1` a `OUT_BladeStop`. La configuración validada de esta estación usa `%I10.3` como trigger y `%Q10.1` como segunda cinta. No reasignar Buffer/Blade Stop hasta confirmar su nuevo mapeo físico y en TIA.
 4. **Estación 3 — Dosificación / Llenado Vertical:**
    * Retenedor neumático de centrado (`IN_Sensor_FillPos`).
    * Actuador neumático vertical de 2 ejes que desciende la boquilla (`OUT_Nozzle_Down`) y electroválvula de apertura de fluido (`OUT_Valve_Liquid`) temporizada con el parámetro exacto de la receta.
@@ -74,7 +81,7 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 ┌──────────────────────────────────────────────────────────────┐
 │ Machine Simulator (Nirtec) v5                                │
 │ - Driver: Siemens S7 (TCP/IP / Ethernet)                     │
-│   IP Destino: 192.168.15.131 (IP de la VM)                   │
+│   IP Destino: 192.168.15.138 (IP de la VM)                   │
 │   Puerto: 102 | Rack: 0 | Slot: 1                            │
 │   Offsets: Start byte 10 (Inputs y Outputs)                  │
 └──────────────┬──────────────────────────────▲────────────────┘
@@ -82,10 +89,10 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 ▼                              ▼
 ┌──────────────────────────────┐  ┌────────────────────────────┐
 │ VM VMware (Modo Bridged)     │  │ MESA DE TRABAJO (FÍSICA)   │
-│ IP: 192.168.15.131           │  │ ESP32 NodeMCU (WROOM-32)   │
+│ IP: 192.168.15.138           │  │ ESP32 NodeMCU (WROOM-32)   │
 │                              │  │ - Botonera Start / Stop    │
 │  NetToPLCsim (Admin)         │  │ - Módulo Relés 5V          │
-│  - Network IP: 192.168.15.131│  │ - Sensor Inductivo (Fallo) │
+│  - Network IP: 192.168.15.138│  │ - Sensor Inductivo (Fallo) │
 │  - PLCSIM IP:  192.168.0.1   │  │ - Motor NEMA 17 + A4988    │
 │  - Rack 0 / Slot 1           │  └────────────────────────────┘
 │         ▲                    │
@@ -116,7 +123,7 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
    * Abrir `NetToPLCsim.exe` con clic derecho > **Ejecutar como administrador**[cite: 7].
    * Si salta el aviso *"Port 102 is in use"*, aceptar para detener el servicio de Windows `SIMATIC S7DOS Help Service`[cite: 7].
    * Pulsar **Add**:
-     * *Network IP Address:* Seleccionar la IP local de la VM (ej. `192.168.15.131` obtenida mediante `ipconfig` en CMD)[cite: 5, 7].
+     * *Network IP Address:* Seleccionar la IP local de la VM (ej. `192.168.15.138` obtenida mediante `ipconfig` en CMD)[cite: 5, 7].
      * *Plcsim IP Address:* Escribir la IP interna del PLC simulado (`192.168.0.1`)[cite: 5, 7].
      * *Plcsim Rack/Slot:* Configurar obligatoriamente **Rack 0** y **Slot 1** (la CPU del S7-1500 reside siempre en el Slot 1; Slot 2 provocará rechazo de conexión)[cite: 5, 7].
      * *Enable TSAP check:* Desmarcado[cite: 5].
@@ -126,7 +133,7 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
    * Abrir Machine Simulator y en la barra superior acceder a **DRIVERS E/S** (o *Drivers*)[cite: 5, 7].
    * En el desplegable de controladores, seleccionar **Siemens S7 (TCP/IP / Ethernet)** y pulsar en **Configure / Settings**[cite: 5, 7].
    * Introducir los parámetros de enlace:
-     * *IP Address / Host:* La IP física de la VM (`192.168.15.131`), **nunca** la 192.168.0.1[cite: 5, 7].
+     * *IP Address / Host:* La IP física de la VM (`192.168.15.138`), **nunca** la 192.168.0.1[cite: 5, 7].
      * *Port:* `102`[cite: 5, 7].
      * *Rack:* `0` | *Slot:* `1`[cite: 5, 7].
      * *Network Adapter:* Seleccionar la tarjeta de red física activa del host (Realtek, Ethernet o Wi-Fi), nunca *Loopback*[cite: 7, 11].
@@ -170,18 +177,18 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 * `%I10.0` - `IN_HIL_BtnStart` (BOOL): Pulsador físico real en protoboard [Confirmado].
 * `%I10.1` - `IN_HIL_BtnStop` (BOOL): Pulsador físico real de parada/rearme [Confirmado].
 * `%I10.2` - `IN_HIL_SensorFault` (BOOL): Sensor inductivo físico (inyección de fallos) [Confirmado].
-* `%I10.3` - `IN_Sensor_BufferPre` (BOOL): Fotocélula previa a tope dosificador [Confirmado].
-* `%I10.4` - `IN_Sensor_Height_S` (BOOL): Fotocélula inferior cota formato S [Confirmado].
-* `%I10.5` - `IN_Sensor_Height_M` (BOOL): Fotocélula intermedia cota formato M [Confirmado].
-* `%I10.6` - `IN_Sensor_Height_L` (BOOL): Fotocélula superior cota formato L [Confirmado].
+* `%I10.3` - `IN_Sensor_Presencia` (BOOL): Trigger cenital de clasificación de altura [Validado; asignación anterior de BufferPre pendiente de armonización].
+* `%I10.4` - `IN_Sensor_Height_S` (BOOL): Fotocélula inferior de clasificación de altura [Validado].
+* `%I10.5` - `IN_Sensor_Height_M` (BOOL): Fotocélula intermedia de clasificación de altura [Validado].
+* `%I10.6` - `IN_Sensor_Height_L` (BOOL): Fotocélula superior de clasificación de altura [Validado].
 * `%I10.7` - `IN_Sensor_FillPos` (BOOL): Detección de botella centrada en boquilla [Propuesta técnica].
 * `%I11.0` - `IN_Sensor_ScaleStop` (BOOL): Fotocélula de centrado en báscula [Confirmado][cite: 7].
 * `%I11.1` - `IN_Cobot_Done` (BOOL): Señal de fin de ciclo de taponado [Confirmado].
 * `%I11.2` - `IN_Sensor_ExitDetect` (BOOL): Fotocélula de evacuación final [Confirmado].
 
 ### Salidas Digitales (PLC Outputs)
-* `%Q10.0` - `OUT_Conveyor_Entry` (BOOL): Motor cinta de entrada / Buffer [Confirmado][cite: 7].
-* `%Q10.1` - `OUT_BladeStop` (BOOL): Accionamiento tope neumático vertical [Confirmado][cite: 7].
+* `%Q10.0` - `Cinta1` / `OUT_Conveyor_Entry` (BOOL): Motor de transporte continuo [Validado en OB1].
+* `%Q10.1` - `Cinta2_DeteccionSize` (BOOL): Motor de la cinta de detección de altura [Validado en OB1; mapeo de BladeStop pendiente de armonización].
 * `%Q10.2` - `OUT_Nozzle_Down` (BOOL): Descenso vertical boquilla de dosificación [Confirmado].
 * `%Q10.3` - `OUT_Valve_Liquid` (BOOL): Electroválvula de llenado de líquido [Confirmado].
 * `%Q10.4` - `OUT_Conveyor_Scale` (BOOL): Motor de cinta sobre báscula [Confirmado][cite: 7].
@@ -242,7 +249,9 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 
 ## 13. Dudas y Tareas Pendientes
 * **Resolución del dilema cinemático de packaging:** Selección final entre pórtico cartesiano XYZ (matrices en SCL) y brazo robótico de 6 ejes con garra de vacío.
-* **Despliegue de los bloques SCL de la Fase 2:** Implementación de la función `FC_Analog_Scaling` y estructura UDT de recetas.
+* **Estación de altura:** implementar tres contadores ascendentes `CTU` (S/M/L) en `DB_Production` para productividad acumulada.
+* **Estación 4 — Báscula:** acoplar la báscula dinámica e implementar parada de 1.0 s con TON para estabilizar la célula de carga antes de evaluar masa y tolerancias.
+* **Mapa E/S:** resolver la reasignación de `IN_Sensor_BufferPre` y `OUT_BladeStop` tras incorporar `IN_Sensor_Presencia` y la segunda cinta.
 * **Pruebas institucionales en UPC EEBE:** Coordinación con el departamento para transferir el proyecto a un autómata SIMATIC S7-1500 real.
 
 ---
@@ -259,6 +268,7 @@ HOST (Windows 10/11 - Tarjeta Gráfica GPU)
 * *Octubre 2026 (Semana 2):* Depuración de la estación Buffer en Ladder y decisión de migración a Machine Simulator[cite: 5].
 * *Octubre 2026 (Semana 3):* Rediseño hacia la célula flexible de embotellado con lazo PID y redacción de propuesta para TFG en la UPC EEBE.
 * *Octubre 2026 (Semana 4):* Escena 3D ensamblada en Machine Simulator, verificación del enlace S7 Ethernet hacia PLCSIM V21 y preparación de bloques en SCL[cite: 7].
+* *Noviembre 2026 (3):* Clasificación de altura S/M/L validada al vuelo con trigger cenital y `FC_HeightClassification`; queda pendiente armonizar el mapa global de Buffer/Blade Stop.
 
 ---
 
