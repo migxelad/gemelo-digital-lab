@@ -1,0 +1,16 @@
+# PlatformIO build output
+.pio/
+
+# Temporary files, logs and local caches
+*.tmp
+*.bak
+*.log
+*.trace
+.cache/
+**/.cache/
+.DS_Store
+Thumbs.db
+
+# Uncompressed TIA Portal project folders
+*.ap21
+/*.zap21

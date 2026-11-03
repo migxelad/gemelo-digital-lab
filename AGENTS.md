@@ -5,7 +5,7 @@ Este documento establece las normas obligatorias, contratos de memoria y restric
 ---
 
 ## 1. Fuente Única de Verdad (SSOT)
-* El archivo **`docs/CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
+* El archivo **`CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
 * Cualquier modificación en la arquitectura, mapa de memoria o secuencias debe quedar reflejada en el contexto maestro y registrarse en `HITOS.md`.
 
 ---

@@ -12,7 +12,7 @@ const int PIN_RELE  = 23;
 const int PIN_LED = 5; 
 const int DIRECCION_COIL_LED = 1; // Nuestro nuevo buzón de memoria Modbus
 
-// 3. Objeto Modbus y direcciones de memoria (las que leerá Factory I/O)
+// 3. Objeto Modbus y direcciones de memoria (usadas por el cliente Modbus TCP)
 ModbusIP mb;
 const int DIRECCION_COIL_RELE = 0;   // Dirección 0 para encender el relé (Salida / Coil)
 const int DIRECCION_INPUT_BOTON = 0; // Dirección 0 para leer el botón (Entrada discreta)
@@ -36,7 +36,7 @@ void setup() {
     Serial.print(".");
   }
   
-  // ¡Momento clave! Aquí te dará la IP que necesitas poner en Factory I/O
+  // ¡Momento clave! Aquí te dará la IP que necesitas configurar en el cliente Modbus TCP
   Serial.println("\n¡Conectado! La IP de tu ESP32 es: ");
   Serial.println(WiFi.localIP());
 
@@ -56,7 +56,7 @@ void loop() {
   bool botonPulsado = (digitalRead(PIN_BOTON) == LOW);
   mb.Ists(DIRECCION_INPUT_BOTON, botonPulsado);
 
-  // 3. DEL SIMULADOR AL ESCRITORIO (Sensor -> Actuadores físicos)
+  // 3. DEL CLIENTE MODBUS TCP AL ESCRITORIO (Sensor -> Actuadores físicos)
   // Leemos ÚNICAMENTE la Coil 0 (donde está enlazado el sensor láser)
   bool estadoSensorVirtual = mb.Coil(DIRECCION_COIL_RELE); 
   

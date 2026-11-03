@@ -25,7 +25,7 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
   - Desarrollo de la **Fase 2: Estación de Inspección Híbrida** (secuenciador GRAFCET y función SCL para lectura analógica de peso `%ID100` y clasificación por matriz de altura S/M/L).
 
 - **Archivos tocados:**
-  - `docs/CONTEXTO_MAESTRO.md`
+  - `CONTEXTO_MAESTRO.md`
   - `AGENTS.md`
   - `HITOS.md`
   - `README.md`
@@ -36,7 +36,7 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Qué cambió en el mapa de E/S o en bloques:** Trigger cenital `IN_Sensor_Presencia` en `%I10.3`; fotocélulas S/M/L en `%I10.4`–`%I10.6`. OB1 acciona continuamente `Cinta1` (`%Q10.0`) y `Cinta2_DeteccionSize` (`%Q10.1`) y llama incondicionalmente a FC1. La FC prioriza L→M→S y actualiza `DB_Production.CurrentRecipe`.
 - **Decisiones tomadas y por qué:** Se suprime el TON de parada en altura para evitar interrupciones mecánicas; la prueba observada en escena confirma la conmutación durante el avance. La parada de 1.0 s se reserva a la báscula para estabilizar la medida.
 - **Pendiente / siguiente paso:** Crear tres contadores CTU por formato; integrar báscula con parada TON de 1.0 s; armonizar el mapa global, ya que las asignaciones anteriores de `IN_Sensor_BufferPre` (%I10.3) y `OUT_BladeStop` (%Q10.1) colisionan con las nuevas señales de altura y segunda cinta.
-- **Archivos tocados:** `ContextoMaestro.md` y `HITOS.md` (documentación actualizada en este commit); proyecto TIA Portal `SortreingByWeight.zap21` (OB1, FC_HeightClassification [FC1], `typeRecipe` [UDT1]) y escena Machine Simulator v5 (pórtico y sensor cenital), según el hito aportado.
+- **Archivos tocados:** `CONTEXTO_MAESTRO.md` y `HITOS.md` (documentación actualizada en este commit); proyecto TIA Portal `SortreingByWeight.zap21` (OB1, FC_HeightClassification [FC1], `typeRecipe` [UDT1]) y escena Machine Simulator v5 (pórtico y sensor cenital), según el hito aportado.
 
 ## 2026-11-03 — Versionado de FC_HeightClassification en SCL
 
@@ -44,7 +44,7 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Qué cambió en el mapa de E/S o en bloques:** Se añadió `tia_portal/exports/scl/FC_HeightClassification.scl`, con trigger `IN_Sensor_Presencia`, prioridad L→M→S y actualización de `DB_Production.CurrentRecipe`.
 - **Decisiones tomadas y por qué:** El SCL se versiona por separado del contexto para facilitar revisión e importación a TIA Portal. Se normalizó `Tolereance_g` como `Tolerance_g`, nombre registrado en el UDT.
 - **Pendiente / siguiente paso:** Importar/comparar el archivo con FC1 en TIA Portal y confirmar compilación; implementar los CTU de producción y la lógica de estabilización de báscula.
-- **Archivos tocados:** `tia_portal/exports/scl/FC_HeightClassification.scl`, `ContextoMaestro.md`, `HITOS.md`.
+- **Archivos tocados:** `tia_portal/exports/scl/FC_HeightClassification.scl`, `CONTEXTO_MAESTRO.md`, `HITOS.md`.
 
 ## 2026-11-03 — Actualización de tags PLC según captura de TIA Portal
 
@@ -52,4 +52,12 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Qué cambió en el mapa de E/S o en bloques:** `%Q10.1` se identifica como `Cinta2_HeightSize`; `%I10.3` como `IN_Sensor_Presencia`; `%I10.4`–`%I10.6` como sensores S/M/L; `%M10.1` como `Lectura_Completada`. La tabla anterior del contexto se sustituyó por los tags confirmados en la captura.
 - **Decisiones tomadas y por qué:** La captura más reciente prevalece sobre los mapas anteriores. Las señales que no aparecen en ella se consideran no confirmadas y no se les asignan direcciones por inferencia.
 - **Pendiente / siguiente paso:** Actualizar el código SCL/OB1 para usar exactamente `Cinta2_HeightSize` y definir con una captura o exportación vigente los tags de Buffer, Blade Stop, pesaje y resto de estaciones antes de programarlos.
-- **Archivos tocados:** `ContextoMaestro.md`, `HITOS.md`.
+- **Archivos tocados:** `CONTEXTO_MAESTRO.md`, `HITOS.md`.
+
+## 2026-11-03 — Reorganización del repositorio y retirada de artefactos de Factory I/O
+
+- **Qué funciona ahora:** La raíz queda centrada en instrucciones, contexto, bitácora y configuración del firmware. El contexto canónico queda bajo `CONTEXTO_MAESTRO.md`; la fuente SCL sigue disponible en su carpeta de exportaciones.
+- **Qué cambió en el mapa de E/S o en bloques:** No se modificaron direcciones ni lógica PLC. Se conservan en la documentación los tags vigentes de la captura de TIA Portal.
+- **Decisiones tomadas y por qué:** Se retiraron la escena antigua `.factoryio` y la exportación XML generada por Factory I/O, cuyas direcciones no cumplen el mapa vigente. Los recursos se agruparon por tipo. Los dos MP4 que estaban en raíz tenían el mismo blob de solo 2 bytes, por lo que se movieron sin alterar su contenido, pero deben reemplazarse por grabaciones válidas.
+- **Pendiente / siguiente paso:** Subir la escena nativa actual de Machine Simulator y un backup comprimido de TIA Portal en `tia_portal/project_backup/`; reemplazar los MP4 vacíos por los vídeos originales. Revisar el firmware HIL contra la configuración actual de ESP32/Modbus antes de presentarlo como integración activa.
+- **Archivos tocados:** `.gitignore`, `README.md`, `AGENTS.md`, `CONTEXTO_MAESTRO.md`, `HITOS.md`, `src/main.cpp`; reubicados los vídeos y el diagrama; retirados los dos artefactos obsoletos de Factory I/O.
