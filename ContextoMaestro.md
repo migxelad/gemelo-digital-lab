@@ -50,7 +50,7 @@ El sistema conecta en bucle cerrado:
    * Fuente SCL versionada: `tia_portal/exports/scl/FC_HeightClassification.scl`.
    * Validación empírica: el `FormatID` conmuta a 3 al pasar una caja L sin detener la cinta; se observó en la Watch Table con PLCSIM V21 y NetToPLCsim.
    * En esta estación no se usa TON de parada. La parada de 1.0 s queda reservada a la báscula de la Estación 4.
-   * **Pendiente de armonización del mapa global:** la documentación anterior asignaba `%I10.3` a `IN_Sensor_BufferPre` y `%Q10.1` a `OUT_BladeStop`. La configuración validada de esta estación usa `%I10.3` como trigger y `%Q10.1` como segunda cinta. No reasignar Buffer/Blade Stop hasta confirmar su nuevo mapeo físico y en TIA.
+   * El mapa de tags vigente se recoge en la sección 7; cualquier asignación que no aparezca en la captura actual se considera obsoleta/no confirmada.
 4. **Estación 3 — Dosificación / Llenado Vertical:**
    * Retenedor neumático de centrado (`IN_Sensor_FillPos`).
    * Actuador neumático vertical de 2 ejes que desciende la boquilla (`OUT_Nozzle_Down`) y electroválvula de apertura de fluido (`OUT_Valve_Liquid`) temporizada con el parámetro exacto de la receta.
