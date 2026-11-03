@@ -4,7 +4,7 @@ Proyecto de célula flexible de embotellado y control metrológico para puesta e
 
 ## Estado actual
 
-La clasificación de altura S/M/L funciona al vuelo en Machine Simulator. La tabla PLC vigente, el mapa de tags y el contexto técnico están documentados en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md). Los hitos se registran en [HITOS.md](HITOS.md).
+La clasificación de altura S/M/L funciona al vuelo en Machine Simulator. La tabla PLC vigente, el mapa de tags y el contexto técnico están documentados en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md). Los hitos se registran en [HITOS.md](HITOS.md). La lista priorizada de trabajo pendiente está en [TAREAS_PENDIENTES.md](TAREAS_PENDIENTES.md).
 
 ## Estructura
 

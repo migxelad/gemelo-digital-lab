@@ -235,12 +235,15 @@ Las E/S digitales de proceso visibles respetan la Regla del Byte 10. Las marcas 
 ---
 
 ## 13. Dudas y Tareas Pendientes
-* **Resolución del dilema cinemático de packaging:** Selección final entre pórtico cartesiano XYZ (matrices en SCL) y brazo robótico de 6 ejes con garra de vacío.
-* **Estación de altura:** implementar tres contadores ascendentes `CTU` (S/M/L) en `DB_Production` para productividad acumulada.
-* **Estación 4 — Báscula:** acoplar la báscula dinámica e implementar parada de 1.0 s con TON para estabilizar la célula de carga antes de evaluar masa y tolerancias.
-* **Pruebas institucionales en UPC EEBE:** Coordinación con el departamento para transferir el proyecto a un autómata SIMATIC S7-1500 real.
 
----
+El plan desglosado y el punto de continuación de la próxima sesión están en [TAREAS_PENDIENTES.md](TAREAS_PENDIENTES.md). Orden recomendado:
+
+1. Cerrar la estación de altura con contadores de producción S/M/L y total, usando el tag actual `Lectura_Completada` (`%M10.1`) o una detección de flanco debidamente validada para evitar incrementos múltiples.
+2. Revisar en TIA Portal `DB_Production`, `Main [OB1]` y FC1; completar el mapa de actuadores de llenado y vincular su secuencia al `CurrentRecipe.FillTime`.
+3. Diseñar la estación de báscula y descarte solo después de confirmar en TIA Portal y Machine Simulator el tipo/unidad de peso, la tara, el peso nominal objetivo y las direcciones E/S. Las direcciones sugeridas en el borrador de Gemini no están confirmadas por la captura actual de tags.
+4. Más adelante, decidir la cinemática de packaging y coordinar pruebas en un S7-1500 físico.
+
+**Estado de evidencia:** la clasificación de altura y la conexión HIL están validadas; los CTU, la secuencia de llenado y la evaluación de báscula aún no constan como implementados y probados.
 
 ## 14. Riesgos Técnicos y Pruebas Necesarias
 * **Determinismo de red:** Comprobación de que la latencia acumulada entre Machine Simulator, NetToPLCsim y el ESP32 no exceda los 50 ms.

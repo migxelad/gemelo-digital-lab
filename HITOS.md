@@ -61,3 +61,11 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Decisiones tomadas y por qué:** Se retiraron la escena antigua `.factoryio` y la exportación XML generada por Factory I/O, cuyas direcciones no cumplen el mapa vigente. Los recursos se agruparon por tipo. Los dos MP4 que estaban en raíz tenían el mismo blob de solo 2 bytes, por lo que se movieron sin alterar su contenido, pero deben reemplazarse por grabaciones válidas.
 - **Pendiente / siguiente paso:** Subir la escena nativa actual de Machine Simulator y un backup comprimido de TIA Portal en `tia_portal/project_backup/`; reemplazar los MP4 vacíos por los vídeos originales. Revisar el firmware HIL contra la configuración actual de ESP32/Modbus antes de presentarlo como integración activa.
 - **Archivos tocados:** `.gitignore`, `README.md`, `AGENTS.md`, `CONTEXTO_MAESTRO.md`, `HITOS.md`, `src/main.cpp`; reubicados los vídeos y el diagrama; retirados los dos artefactos obsoletos de Factory I/O.
+
+## 2026-11-03 — Priorización de tareas y continuación del proyecto
+
+- **Qué funciona ahora:** Queda consolidada la clasificación S/M/L al vuelo y la fuente SCL versionada. La limpieza estructural del repositorio está registrada.
+- **Qué cambió en el mapa de E/S o en bloques:** Sin cambios de E/S ni de lógica PLC; se crea `TAREAS_PENDIENTES.md` contrastado con los tags vigentes.
+- **Decisiones tomadas y por qué:** Se marcan como realizadas las tareas ya reflejadas en commits. Las direcciones de peso, báscula y actuadores propuestas por Gemini se dejan sin confirmar porque no aparecen en la captura PLC actual. La siguiente sesión empezará verificando DB/OB1 y cerrando contadores por formato sin doble conteo.
+- **Pendiente / siguiente paso:** Implementar y probar CTU S/M/L y total; después confirmar actuadores y secuencia de dosificación, y diseñar la báscula con tipos, unidades y direcciones verificados.
+- **Archivos tocados:** `TAREAS_PENDIENTES.md`, `CONTEXTO_MAESTRO.md`, `README.md`, `HITOS.md`.
