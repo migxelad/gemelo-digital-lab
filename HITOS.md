@@ -37,3 +37,11 @@ Este archivo registra el avance técnico del proyecto de forma estrictamente inc
 - **Decisiones tomadas y por qué:** Se suprime el TON de parada en altura para evitar interrupciones mecánicas; la prueba observada en escena confirma la conmutación durante el avance. La parada de 1.0 s se reserva a la báscula para estabilizar la medida.
 - **Pendiente / siguiente paso:** Crear tres contadores CTU por formato; integrar báscula con parada TON de 1.0 s; armonizar el mapa global, ya que las asignaciones anteriores de `IN_Sensor_BufferPre` (%I10.3) y `OUT_BladeStop` (%Q10.1) colisionan con las nuevas señales de altura y segunda cinta.
 - **Archivos tocados:** `ContextoMaestro.md` y `HITOS.md` (documentación actualizada en este commit); proyecto TIA Portal `SortreingByWeight.zap21` (OB1, FC_HeightClassification [FC1], `typeRecipe` [UDT1]) y escena Machine Simulator v5 (pórtico y sensor cenital), según el hito aportado.
+
+## 2026-11-03 — Versionado de FC_HeightClassification en SCL
+
+- **Qué funciona ahora:** La lógica de clasificación S/M/L queda guardada como archivo SCL de texto en el repositorio y descrita en el contexto maestro.
+- **Qué cambió en el mapa de E/S o en bloques:** Se añadió `tia_portal/exports/scl/FC_HeightClassification.scl`, con trigger `IN_Sensor_Presencia`, prioridad L→M→S y actualización de `DB_Production.CurrentRecipe`.
+- **Decisiones tomadas y por qué:** El SCL se versiona por separado del contexto para facilitar revisión e importación a TIA Portal. Se normalizó `Tolereance_g` como `Tolerance_g`, nombre registrado en el UDT.
+- **Pendiente / siguiente paso:** Importar/comparar el archivo con FC1 en TIA Portal y confirmar compilación; implementar los CTU de producción y la lógica de estabilización de báscula.
+- **Archivos tocados:** `tia_portal/exports/scl/FC_HeightClassification.scl`, `ContextoMaestro.md`, `HITOS.md`.

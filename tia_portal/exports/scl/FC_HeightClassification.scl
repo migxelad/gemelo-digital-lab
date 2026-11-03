@@ -1,0 +1,32 @@
+FUNCTION "FC_HeightClassification" : Void
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+
+BEGIN
+    // Clasificación jerárquica de altura "al vuelo".
+    // La presencia habilita la lectura; fuera de la zona de medida,
+    // CurrentRecipe conserva la última receta clasificada.
+    IF "IN_Sensor_Presencia" THEN
+        // Formato grande (L): se evalúa primero la cota superior.
+        IF "IN_Sensor_Height_L" THEN
+            "DB_Production".CurrentRecipe.FormatID := 3;
+            "DB_Production".CurrentRecipe.TargetVolume_cl := 75.0;
+            "DB_Production".CurrentRecipe.FillTime := T#4S_500MS;
+            "DB_Production".CurrentRecipe.Tolerance_g := 18.0;
+
+        // Formato mediano (M): cota intermedia.
+        ELSIF "IN_Sensor_Height_M" THEN
+            "DB_Production".CurrentRecipe.FormatID := 2;
+            "DB_Production".CurrentRecipe.TargetVolume_cl := 50.0;
+            "DB_Production".CurrentRecipe.FillTime := T#3S;
+            "DB_Production".CurrentRecipe.Tolerance_g := 12.0;
+
+        // Formato pequeño (S): se detecta la cota inferior.
+        ELSIF "IN_Sensor_Height_S" THEN
+            "DB_Production".CurrentRecipe.FormatID := 1;
+            "DB_Production".CurrentRecipe.TargetVolume_cl := 25.0;
+            "DB_Production".CurrentRecipe.FillTime := T#1S_500MS;
+            "DB_Production".CurrentRecipe.Tolerance_g := 8.0;
+        END_IF;
+    END_IF;
+END_FUNCTION

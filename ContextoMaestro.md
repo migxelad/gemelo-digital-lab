@@ -47,6 +47,7 @@ El sistema conecta en bucle cerrado:
      * L: `FormatID := 3`, `TargetVolume_cl := 75.0`, `FillTime := T#4S_500MS`, `Tolerance_g := 18.0`.
      * M: `FormatID := 2`, `TargetVolume_cl := 50.0`, `FillTime := T#3S`, `Tolerance_g := 12.0`.
      * S: `FormatID := 1`, `TargetVolume_cl := 25.0`, `FillTime := T#1S_500MS`, `Tolerance_g := 8.0`.
+   * Fuente SCL versionada: `tia_portal/exports/scl/FC_HeightClassification.scl`.
    * Validación empírica: el `FormatID` conmuta a 3 al pasar una caja L sin detener la cinta; se observó en la Watch Table con PLCSIM V21 y NetToPLCsim.
    * En esta estación no se usa TON de parada. La parada de 1.0 s queda reservada a la báscula de la Estación 4.
    * **Pendiente de armonización del mapa global:** la documentación anterior asignaba `%I10.3` a `IN_Sensor_BufferPre` y `%Q10.1` a `OUT_BladeStop`. La configuración validada de esta estación usa `%I10.3` como trigger y `%Q10.1` como segunda cinta. No reasignar Buffer/Blade Stop hasta confirmar su nuevo mapeo físico y en TIA.
