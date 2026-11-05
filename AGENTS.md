@@ -47,5 +47,29 @@ Al generar o modificar configuraciones para la CPU SIMATIC S7-1500 (ej. S7-1511-
 ---
 
 ## 7. Protocolo de Registro de Hitos
-* Las IAs de chat no modifican directamente `HITOS.md` en repositorios remotos salvo indicación expresa con herramientas Git con permisos.
-* Al cerrar una sesión, el agente debe entregar una entrada formateada según el estándar definido en `HITOS.md` para ser anexada al final del archivo.
+* Solo el agente con rol de **Inspector** (ver sección 8) anexa entradas a `HITOS.md`, y únicamente después de validar el cambio.
+* Las entradas se añaden siempre al **final** del archivo y se actualiza la primera línea `Última actualización: AAAA-MM-DD`.
+* Las IAs de chat sin herramientas Git (Gemini, ChatGPT, NotebookLM) no modifican el repositorio: entregan la entrada formateada para que la anexe el Inspector o Miguel.
+
+---
+
+## 8. Roles de Agentes y Reglas Anti-Solapamiento
+
+### 8.1 Principio rector
+Quien escribe el código no lo aprueba. Todo cambio pasa por: **Constructor → Inspector → Miguel (merge)**.
+
+### 8.2 Reparto de roles
+| Agente | Rol | Territorio |
+|---|---|---|
+| **Codex** | Constructor | Escribe código nuevo y refactorizaciones: bloques SCL (`tia_portal/exports/scl/`), tablas de tags XML, firmware ESP32 (`src/`, `platformio.ini`) y, en Fase 3, Node-RED, Docker, SQL y Python. Mantenimiento estructural del repo (carpetas, `.gitignore`, README). |
+| **Claude (Code / Cowork)** | Inspector y jefe de obra | Revisa cada PR contra este `AGENTS.md` y `CONTEXTO_MAESTRO.md`. Verifica en la simulación real (TIA Portal, Watch Table, Machine Simulator) mediante control del PC. Es el **único agente que añade entradas a `HITOS.md`**, y solo tras validar. Mantiene el estado de `TAREAS_PENDIENTES.md`. |
+| **Miguel** | Ingeniero responsable | Decide arquitectura, opera TIA Portal cuando hace falta, resuelve decisiones abiertas y es el **único que fusiona en `main`**. |
+
+### 8.3 Reglas obligatorias
+1. **Etiqueta de dueño:** cada tarea de `TAREAS_PENDIENTES.md` lleva una etiqueta `[codex]`, `[claude]` o `[miguel]` (pueden combinarse, p. ej. `[codex→claude]` = Codex implementa, Claude valida). Ningún agente ejecuta una tarea que no lleve su etiqueta.
+2. **Ramas por agente:** Codex trabaja en `codex/<tema>`, Claude en `claude/<tema>`. Prohibido el push directo a `main`.
+3. **Un tema, una rama, un agente:** si una rama de un agente está abierta sobre un tema, el otro no abre otra rama sobre ese mismo tema.
+4. **Entrega de Codex:** cada PR incluye en su descripción (a) qué tarea de `TAREAS_PENDIENTES.md` cierra, (b) qué reglas de `AGENTS.md` afecta, y (c) un **borrador** de entrada para `HITOS.md` con el formato estándar. Codex **no** edita `HITOS.md`.
+5. **Revisión de Claude:** Claude deja su revisión en `docs/reviews/AAAA-MM-DD_<tema>.md` (veredicto APROBADO / CAMBIOS, hallazgos con archivo y línea, y resultado de la validación en simulación si la hubo). Tras validar, anexa la entrada definitiva al final de `HITOS.md` y marca la tarea como `[x]`.
+6. **Conflicto o duda:** si un agente detecta que necesita tocar el territorio del otro, lo anota en la descripción del PR o en la revisión y se detiene; no lo resuelve por su cuenta.
+7. **Cambio de reglas:** solo Miguel modifica esta sección 8.
