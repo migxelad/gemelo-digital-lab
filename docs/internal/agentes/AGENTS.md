@@ -5,7 +5,7 @@ Este documento establece las normas obligatorias, contratos de memoria y restric
 ---
 
 ## 1. Fuente Única de Verdad (SSOT)
-* El archivo **`../../CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
+* El archivo **`../../../CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
 * Cualquier modificación en la arquitectura, mapa de memoria o secuencias debe quedar reflejada en el contexto maestro y registrarse en `HITOS.md`.
 
 ---
@@ -62,7 +62,7 @@ Quien escribe el código no lo aprueba. Todo cambio pasa por: **Constructor → 
 | Agente | Rol | Territorio |
 |---|---|---|
 | **Codex** | Constructor | Escribe código nuevo y refactorizaciones: bloques SCL (`tia_portal/exports/scl/`), tablas de tags XML, firmware ESP32 (`src/`, `platformio.ini`) y, en Fase 3, Node-RED, Docker, SQL y Python. Mantenimiento estructural del repo (carpetas, `.gitignore`, README). |
-| **Claude (Code / Cowork)** | Inspector y jefe de obra | Revisa cada PR contra este `AGENTS.md` y `../../CONTEXTO_MAESTRO.md`. Verifica en la simulación real (TIA Portal, Watch Table, Machine Simulator) mediante control del PC. Es el **único agente que añade entradas a `HITOS.md`**, y solo tras validar. Mantiene el estado de `../TAREAS_PENDIENTES.md`. |
+| **Claude (Code / Cowork)** | Inspector y jefe de obra | Revisa cada PR contra este `AGENTS.md` y `../../../CONTEXTO_MAESTRO.md`. Verifica en la simulación real (TIA Portal, Watch Table, Machine Simulator) mediante control del PC. Es el **único agente que añade entradas a `HITOS.md`**, y solo tras validar. Mantiene el estado de `../TAREAS_PENDIENTES.md`. |
 | **Miguel** | Ingeniero responsable | Decide arquitectura, opera TIA Portal cuando hace falta, resuelve decisiones abiertas y es el **único que fusiona en `main`**. |
 
 ### 8.3 Reglas obligatorias
