@@ -1,0 +1,9 @@
+TYPE "typeRecipe"
+VERSION : 0.1
+   STRUCT
+      FormatID : Int;
+      TargetVolume_cl : Real;
+      FillTime : Time;
+      Tolerance_g : Real;
+   END_STRUCT;
+END_TYPE

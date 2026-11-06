@@ -1,0 +1,9 @@
+FUNCTION_BLOCK "FB_BufferStation"
+{ S7_Optimized_Access := 'TRUE' }
+VERSION : 0.1
+
+// Starter shell only. Assign I/O and sequence after verifying the actual
+// Machine Simulator actuators and current TIA Portal tag table.
+
+BEGIN
+END_FUNCTION_BLOCK

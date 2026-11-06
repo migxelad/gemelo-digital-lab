@@ -1,16 +1,27 @@
-# PlatformIO build output
+# PlatformIO
 .pio/
+.vscode/.browse.c_cpp.db*
 
-# Temporary files, logs and local caches
-*.tmp
+# TIA Portal temporary and uncompressed project artifacts
+*.ap_bak
 *.bak
+*.dmp
+*.ap21
+
+# NetToPLCsim logs
+*NetToPLCsim*.log
+*NetToPLCsim*.txt
+
+# General temporary files and logs
+*.tmp
 *.log
 *.trace
 .cache/
 **/.cache/
+
+# Local Wi-Fi credentials (copy secrets.example.h to secrets.h)
+include/secrets.h
+
+# Operating system
 .DS_Store
 Thumbs.db
-
-# Uncompressed TIA Portal project folders
-*.ap21
-/*.zap21

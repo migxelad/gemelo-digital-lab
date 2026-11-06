@@ -1,6 +1,6 @@
 # Tareas pendientes y punto de continuación
 
-Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · [A→B] A implementa, B valida. Ver AGENTS.md §8.
+Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · [A→B] A implementa, B valida. Ver docs/internal/agentes/AGENTS.md §8.
 
 **Proyecto:** `gemelo-digital-lab`  
 **Entorno:** TIA Portal V21 / S7-PLCSIM en VMware, NetToPLCsim TCP 102 y Machine Simulator Suite v5.  
@@ -68,4 +68,4 @@ Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · 
 - El mapa de tags más reciente es el que aparece en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md); no usar direcciones anteriores no presentes en esa tabla.
 - Las E/S digitales de proceso deben comenzar en Byte 10.
 - Los cambios de arquitectura y memoria también deben quedar reflejados en `CONTEXTO_MAESTRO.md` y en `HITOS.md`.
-- Seguir también las reglas de roles y ramas de [AGENTS.md §8](AGENTS.md#8-roles-de-agentes-y-reglas-anti-solapamiento).
+- Seguir también las reglas de roles y ramas de [docs/internal/agentes/AGENTS.md §8](docs/internal/agentes/AGENTS.md#8-roles-de-agentes-y-reglas-anti-solapamiento).

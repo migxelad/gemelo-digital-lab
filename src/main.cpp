@@ -2,73 +2,62 @@
 #include <WiFi.h>
 #include <ModbusIP_ESP8266.h>
 
-// 1. Credenciales de tu red WiFi doméstica (cámbialas por las tuyas)
-const char* ssid = "MIWIFI_2G_qFJW";
-const char* password = "3SSu9kTu";
+#if __has_include("secrets.h")
+#include "secrets.h"
+#else
+#define WIFI_SSID "YOUR_WIFI_SSID"
+#define WIFI_PASSWORD "YOUR_WIFI_PASSWORD"
+#endif
 
-// 2. Pines físicos de nuestra protoboard
-const int PIN_BOTON = 4;
-const int PIN_RELE  = 23;
-const int PIN_LED = 5; 
-const int DIRECCION_COIL_LED = 1; // Nuestro nuevo buzón de memoria Modbus
+// Physical bench I/O
+constexpr uint8_t PIN_BOTON = 4;
+constexpr uint8_t PIN_RELE = 23;
+constexpr uint8_t PIN_LED = 5;
 
-// 3. Objeto Modbus y direcciones de memoria (usadas por el cliente Modbus TCP)
+constexpr uint16_t DIRECCION_COIL_LED = 1;
+constexpr uint16_t DIRECCION_COIL_RELE = 0;
+constexpr uint16_t DIRECCION_INPUT_BOTON = 0;
+
 ModbusIP mb;
-const int DIRECCION_COIL_RELE = 0;   // Dirección 0 para encender el relé (Salida / Coil)
-const int DIRECCION_INPUT_BOTON = 0; // Dirección 0 para leer el botón (Entrada discreta)
 
 void setup() {
-  // Iniciamos la consola para ver qué pasa por dentro
   Serial.begin(115200);
-  
-  // Configuración de hardware (igual que en nuestra prueba anterior)
+
   pinMode(PIN_BOTON, INPUT_PULLUP);
   pinMode(PIN_RELE, OUTPUT);
   pinMode(PIN_LED, OUTPUT);
+
   mb.addCoil(DIRECCION_COIL_LED, false);
-  digitalWrite(PIN_RELE, HIGH); // Apagado por defecto (activo en LOW)
-
-  // Conexión WiFi
-  Serial.println("\nConectando al WiFi...");
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
-  }
-  
-  // ¡Momento clave! Aquí te dará la IP que necesitas configurar en el cliente Modbus TCP
-  Serial.println("\n¡Conectado! La IP de tu ESP32 es: ");
-  Serial.println(WiFi.localIP());
-
-  // Configuración Modbus TCP (Modo Servidor/Esclavo)
-  mb.server();
-  
-  // Añadimos los registros a la memoria Modbus del ESP32
   mb.addCoil(DIRECCION_COIL_RELE, false);
   mb.addIsts(DIRECCION_INPUT_BOTON, false);
+  mb.server();
+
+  digitalWrite(PIN_RELE, HIGH); // Relay is active-low; default off.
+  digitalWrite(PIN_LED, LOW);
+
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.println("Connecting to Wi-Fi...");
 }
 
 void loop() {
-  // 1. Mantiene viva la red Modbus TCP
   mb.task();
 
-  // 2. DEL ESCRITORIO AL SIMULADOR (Botón -> Cinta)
-  bool botonPulsado = (digitalRead(PIN_BOTON) == LOW);
-  mb.Ists(DIRECCION_INPUT_BOTON, botonPulsado);
-
-  // 3. DEL CLIENTE MODBUS TCP AL ESCRITORIO (Sensor -> Actuadores físicos)
-  // Leemos ÚNICAMENTE la Coil 0 (donde está enlazado el sensor láser)
-  bool estadoSensorVirtual = mb.Coil(DIRECCION_COIL_RELE); 
-  
-  // Como el láser retrorreflectivo manda un 0 al taparse, usamos el "!" (NOT)
-  if (!estadoSensorVirtual) {
-    digitalWrite(PIN_RELE, LOW);   // Enciende relé (clack!)
-    digitalWrite(PIN_LED, HIGH);   // Enciende el LED rojo
+  static bool reportedConnection = false;
+  if (WiFi.status() == WL_CONNECTED) {
+    if (!reportedConnection) {
+      Serial.print("ESP32 IP address: ");
+      Serial.println(WiFi.localIP());
+      reportedConnection = true;
+    }
   } else {
-    digitalWrite(PIN_RELE, HIGH);  // Apaga relé
-    digitalWrite(PIN_LED, LOW);    // Apaga el LED rojo
+    reportedConnection = false;
   }
 
-  // Pausa de estabilidad
-  delay(10);
+  const bool buttonPressed = (digitalRead(PIN_BOTON) == LOW);
+  mb.Ists(DIRECCION_INPUT_BOTON, buttonPressed);
+
+  const bool virtualSensorState = mb.Coil(DIRECCION_COIL_RELE);
+  digitalWrite(PIN_RELE, virtualSensorState ? HIGH : LOW);
+  digitalWrite(PIN_LED, virtualSensorState ? LOW : HIGH);
 }
