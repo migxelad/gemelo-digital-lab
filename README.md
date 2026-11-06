@@ -1,6 +1,6 @@
 # Gemelo Digital Industrial — gemelo-digital-lab
 
-Proyecto de célula flexible de embotellado y control metrológico para puesta en marcha virtual, con **Machine Simulator Suite v5**, **TIA Portal V21 / S7-PLCSIM** en VMware y un nodo físico **ESP32** mediante Modbus TCP.
+Proyecto de célula de embotellado y control metrológico para puesta en marcha virtual, con **Machine Simulator Suite v5**, **TIA Portal V21 / S7-PLCSIM** en VMware y un nodo físico **ESP32** mediante Modbus TCP.
 
 ## Estado actual
 
