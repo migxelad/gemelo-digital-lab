@@ -1,16 +1,16 @@
 # Tareas pendientes y punto de continuación
 
-Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · [A→B] A implementa, B valida. Ver docs/internal/agentes/AGENTS.md §8.
+Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · [A→B] A implementa, B valida. Ver agentes/AGENTS.md §8.
 
 **Proyecto:** `gemelo-digital-lab`  
 **Entorno:** TIA Portal V21 / S7-PLCSIM en VMware, NetToPLCsim TCP 102 y Machine Simulator Suite v5.  
 **Estado contrastado con el repositorio:** 2026-11-03.  
-**Fuente de tags:** captura vigente de PLC tags descrita en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md). Los mapas anteriores y el XML exportado por Factory I/O están obsoletos.
+**Fuente de tags:** captura vigente de PLC tags descrita en [CONTEXTO_MAESTRO.md](../../CONTEXTO_MAESTRO.md). Los mapas anteriores y el XML exportado por Factory I/O están obsoletos.
 
 ## Estado ya alcanzado
 
 - [x] Retirar de seguimiento la escena antigua de Factory I/O y su XML de tags obsoleto.
-- [x] Ordenar el contexto como `CONTEXTO_MAESTRO.md`, organizar los recursos visuales y añadir `.gitignore`.
+- [x] Ordenar el contexto como `../../CONTEXTO_MAESTRO.md`, organizar los recursos visuales y añadir `.gitignore`.
 - [x] Actualizar README y registrar la clasificación de altura al vuelo en `HITOS.md`.
 - [x] Validar en la Watch Table que una caja L produce `FormatID = 3` sin detener la cinta.
 - [x] Versionar `FC_HeightClassification.scl`: trigger `IN_Sensor_Presencia`, prioridad L→M→S, receta en `DB_Production.CurrentRecipe` y retención cuando no hay presencia.
@@ -33,7 +33,7 @@ Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · 
   - `FormatID = 2` → `CTU_Medium` → `Count_Medium`.
   - `FormatID = 3` → `CTU_Large` → `Count_Large`.
 - [ ] [codex→claude] Incrementar `Total_Inspected` una sola vez por caja clasificada. Definir el comportamiento de reset de contadores antes de implementarlo.
-- [ ] [codex→claude] Mantener la llamada de clasificación y el mapa de E/S vigentes en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md); no reintroducir tags del mapa antiguo.
+- [ ] [codex→claude] Mantener la llamada de clasificación y el mapa de E/S vigentes en [CONTEXTO_MAESTRO.md](../../CONTEXTO_MAESTRO.md); no reintroducir tags del mapa antiguo.
 
 ### 3. Validar el conteo en la simulación
 
@@ -65,7 +65,7 @@ Etiquetas: [codex] constructor · [claude] inspector · [miguel] responsable · 
 
 ## Reglas vigentes
 
-- El mapa de tags más reciente es el que aparece en [CONTEXTO_MAESTRO.md](CONTEXTO_MAESTRO.md); no usar direcciones anteriores no presentes en esa tabla.
+- El mapa de tags más reciente es el que aparece en [CONTEXTO_MAESTRO.md](../../CONTEXTO_MAESTRO.md); no usar direcciones anteriores no presentes en esa tabla.
 - Las E/S digitales de proceso deben comenzar en Byte 10.
-- Los cambios de arquitectura y memoria también deben quedar reflejados en `CONTEXTO_MAESTRO.md` y en `HITOS.md`.
-- Seguir también las reglas de roles y ramas de [docs/internal/agentes/AGENTS.md §8](docs/internal/agentes/AGENTS.md#8-roles-de-agentes-y-reglas-anti-solapamiento).
+- Los cambios de arquitectura y memoria también deben quedar reflejados en `../../CONTEXTO_MAESTRO.md` y en `HITOS.md`.
+- Seguir también las reglas de roles y ramas de [agentes/AGENTS.md §8](agentes/AGENTS.md#8-roles-de-agentes-y-reglas-anti-solapamiento).

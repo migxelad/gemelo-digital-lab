@@ -5,7 +5,7 @@ Este documento establece las normas obligatorias, contratos de memoria y restric
 ---
 
 ## 1. Fuente Única de Verdad (SSOT)
-* El archivo **`CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
+* El archivo **`../../CONTEXTO_MAESTRO.md`** es la Única Fuente de Verdad del proyecto.
 * Cualquier modificación en la arquitectura, mapa de memoria o secuencias debe quedar reflejada en el contexto maestro y registrarse en `HITOS.md`.
 
 ---
@@ -62,14 +62,14 @@ Quien escribe el código no lo aprueba. Todo cambio pasa por: **Constructor → 
 | Agente | Rol | Territorio |
 |---|---|---|
 | **Codex** | Constructor | Escribe código nuevo y refactorizaciones: bloques SCL (`tia_portal/exports/scl/`), tablas de tags XML, firmware ESP32 (`src/`, `platformio.ini`) y, en Fase 3, Node-RED, Docker, SQL y Python. Mantenimiento estructural del repo (carpetas, `.gitignore`, README). |
-| **Claude (Code / Cowork)** | Inspector y jefe de obra | Revisa cada PR contra este `docs/internal/agentes/AGENTS.md` y `CONTEXTO_MAESTRO.md`. Verifica en la simulación real (TIA Portal, Watch Table, Machine Simulator) mediante control del PC. Es el **único agente que añade entradas a `HITOS.md`**, y solo tras validar. Mantiene el estado de `docs/internal/TAREAS_PENDIENTES.md`. |
+| **Claude (Code / Cowork)** | Inspector y jefe de obra | Revisa cada PR contra este `AGENTS.md` y `../../CONTEXTO_MAESTRO.md`. Verifica en la simulación real (TIA Portal, Watch Table, Machine Simulator) mediante control del PC. Es el **único agente que añade entradas a `HITOS.md`**, y solo tras validar. Mantiene el estado de `../TAREAS_PENDIENTES.md`. |
 | **Miguel** | Ingeniero responsable | Decide arquitectura, opera TIA Portal cuando hace falta, resuelve decisiones abiertas y es el **único que fusiona en `main`**. |
 
 ### 8.3 Reglas obligatorias
-1. **Etiqueta de dueño:** cada tarea de `docs/internal/TAREAS_PENDIENTES.md` lleva una etiqueta `[codex]`, `[claude]` o `[miguel]` (pueden combinarse, p. ej. `[codex→claude]` = Codex implementa, Claude valida). Ningún agente ejecuta una tarea que no lleve su etiqueta.
+1. **Etiqueta de dueño:** cada tarea de `../TAREAS_PENDIENTES.md` lleva una etiqueta `[codex]`, `[claude]` o `[miguel]` (pueden combinarse, p. ej. `[codex→claude]` = Codex implementa, Claude valida). Ningún agente ejecuta una tarea que no lleve su etiqueta.
 2. **Ramas por agente:** Codex trabaja en `codex/<tema>`, Claude en `claude/<tema>`. Prohibido el push directo a `main`.
 3. **Un tema, una rama, un agente:** si una rama de un agente está abierta sobre un tema, el otro no abre otra rama sobre ese mismo tema.
-4. **Entrega de Codex:** cada PR incluye en su descripción (a) qué tarea de `docs/internal/TAREAS_PENDIENTES.md` cierra, (b) qué reglas de `docs/internal/agentes/AGENTS.md` afecta, y (c) un **borrador** de entrada para `HITOS.md` con el formato estándar. Codex **no** edita `HITOS.md`.
+4. **Entrega de Codex:** cada PR incluye en su descripción (a) qué tarea de `../TAREAS_PENDIENTES.md` cierra, (b) qué reglas de `AGENTS.md` afecta, y (c) un **borrador** de entrada para `HITOS.md` con el formato estándar. Codex **no** edita `HITOS.md`.
 5. **Revisión de Claude:** Claude deja su revisión en `docs/reviews/AAAA-MM-DD_<tema>.md` (veredicto APROBADO / CAMBIOS, hallazgos con archivo y línea, y resultado de la validación en simulación si la hubo). Tras validar, anexa la entrada definitiva al final de `HITOS.md` y marca la tarea como `[x]`.
 6. **Conflicto o duda:** si un agente detecta que necesita tocar el territorio del otro, lo anota en la descripción del PR o en la revisión y se detiene; no lo resuelve por su cuenta.
 7. **Cambio de reglas:** solo Miguel modifica esta sección 8.
