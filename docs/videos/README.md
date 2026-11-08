@@ -4,8 +4,7 @@ Los tres archivos `.mp4` se retiraron del árbol actual del repositorio para no 
 
 | Estación / demostración | Enlace de visualización | Miniatura |
 |---|---|---|
-| Buffer — acción | Pendiente de recibir URL pública de Drive, YouTube o Vimeo | Pendiente de GIF |
-| Buffer — código Ladder | Pendiente de recibir URL pública de Drive, YouTube o Vimeo | Pendiente de GIF |
-| Clasificación de altura | Pendiente de recibir URL pública de Drive, YouTube o Vimeo | Pendiente de GIF |
+| Buffer — acción |(https://drive.google.com/file/d/18BfaElk1kcuVO2b16CDqfur7spwFU668/view?usp=sharing)|
+| Buffer — código Ladder |(https://drive.google.com/file/d/1pNEBup01n_n5IWcHpy9n3AvjdtySdGR2/view?usp=sharing) |
+| Clasificación de altura |(https://drive.google.com/file/d/15rhvpLfjT8YyesQCXGkMS8PLOoS3h7ri/view?usp=sharing)| 
 
-No se inventan enlaces ni miniaturas. Al aportar las URLs o los archivos GIF, se completará esta tabla.
