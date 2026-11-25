@@ -1,8 +1,24 @@
-# Línea de embotellado inteligente — Centro del gemelo digital e integración HIL
+# Gemelo digital de una línea de embotellado
 
-## Resumen
+Proyecto personal de automatización que integra Machine Simulator Suite v5, TIA Portal V21 con S7-PLCSIM y un nodo ESP32 mediante Modbus TCP.  
+Es un trabajo en curso: este repositorio recoge el estado actual y se actualizará con cada avance. Consulta el [registro de hitos](HITOS.md).
 
-Gemelo digital de una célula de embotellado flexible que combina tecnología operacional e informática: Machine Simulator Suite v5 (Nirtec), Siemens TIA Portal V21 con S7-PLCSIM en VMware, un nodo de campo ESP32 mediante Modbus TCP y una capa de supervisión Edge prevista. El repositorio reúne el contexto del proyecto, exportaciones de texto del PLC, firmware PlatformIO, la escena de Machine Simulator y documentación de ingeniería.
+## Estado del proyecto
+
+| Componente | Estado | Evidencia |
+|---|---|---|
+| Comunicación Machine Simulator ↔ NetToPLCsim ↔ S7-PLCSIM | Validado | [Hito de integración HIL](HITOS.md#2026-11-01--migración-a-machine-simulator-v5-y-consolidación-hil-base) |
+| Bucle HIL base con pulsador, relé y LED mediante ESP32 | Validado | [Hito HIL](HITOS.md#2026-11-01--migración-a-machine-simulator-v5-y-consolidación-hil-base); [firmware](src/main.cpp) |
+| Clasificación de altura S/M/L al vuelo | Validado | [Hito de clasificación](HITOS.md#2026-11-03--validación-de-clasificación-de-altura-al-vuelo); [FC_HeightClassification](tia_portal/exports/scl/FC_HeightClassification.scl) |
+| Contadores por formato | Planificado | Pendiente de implementación y validación; [tareas](docs/internal/TAREAS_PENDIENTES.md#próxima-sesión--cerrar-contadores-de-clasificación) |
+| Báscula y secuencia PASS/REJECT | Planificado | Tags, escala y secuencia por confirmar; [tareas](docs/internal/TAREAS_PENDIENTES.md#báscula-dinámica-y-descarte) |
+| PID_Compact para nivel del tanque en OB cíclico | Planificado | Propuesto en el contexto; implementación y validación pendientes |
+| Seguimiento de envases con array de UDT | Planificado | Pendiente de diseñar y confirmar |
+| Taponado con cobot | Planificado | Estación prevista en el concepto; integración pendiente |
+| Packaging final (Gantry XYZ o robot de seis ejes) | Planificado | Decisión de cinemática pendiente; [tareas](docs/internal/TAREAS_PENDIENTES.md#decisiones-todavía-abiertas) |
+| Supervisión Edge (Docker, PostgreSQL y MQTT) | Planificado | Capa proyectada; aún no implementada |
+| Sensor inductivo y motor NEMA 17 en firmware | Planificado | El código actual solo define pulsador, relé y LED; la ampliación está pendiente |
+| Prueba con un SIMATIC físico | Planificado | Pendiente de planificar; [tareas](docs/internal/TAREAS_PENDIENTES.md#decisiones-todavía-abiertas) |
 
 ## Topología de comunicaciones
 
@@ -22,30 +38,32 @@ Gemelo digital de una célula de embotellado flexible que combina tecnología op
                                       ··· supervisión Edge futura
 ```
 
-Configura la red de la VM en modo puente cuando el equipo anfitrión, la pasarela del PLC virtual y los dispositivos deban comunicarse en la misma LAN. NetToPLCsim expone la conexión S7 simulada en TCP 102 con Rack 0 / Slot 1. El ESP32 ofrece Modbus TCP en el puerto 502.
+NetToPLCsim expone la conexión S7 simulada en TCP 102 con Rack 0 / Slot 1. El ESP32 ofrece Modbus TCP en el puerto 502.
 
 ## Contrato de memoria
 
-Todas las E/S digitales de proceso entre TIA Portal y Machine Simulator / HIL comienzan en el byte 10: `%I10.0` y `%Q10.0`. Los bytes anteriores se reservan para evitar colisiones con la memoria de ciclo de la CPU o del sistema. No asignes señales de proceso a `%I0.x` ni `%Q0.x`. Consulta las [reglas para agentes y el repositorio](docs/internal/agentes/AGENTS.md).
+Todas las E/S digitales de proceso entre TIA Portal y Machine Simulator / HIL comienzan en el byte 10: `%I10.0` y `%Q10.0`. No asignes señales de proceso a `%I0.x` ni `%Q0.x`. Consulta las [reglas del repositorio](docs/internal/agentes/AGENTS.md).
 
-## Estaciones del proceso
+## Próximos pasos
 
-- **Regulación del nivel del tanque:** PID_Compact en una tarea cíclica forma parte de la arquitectura propuesta; en este repositorio todavía no consta como validado el uso de E/S físicas ni el funcionamiento en lazo cerrado.
-- **Entrada y buffer:** el transportador y la retención de un único envase están definidos en el contexto maestro. Antes de implementar E/S adicionales, verifica los actuadores actuales del simulador y las etiquetas del PLC.
-- **Clasificación por altura:** validada en movimiento con tres fotocélulas discretas (S/M/L) y un disparador de presencia. El código SCL prioriza L → M → S y actualiza la receta activa sin detener el transportador. Es una medición discreta, no una inspección analógica.
-- **Llenado y báscula de calidad:** están previstos el llenado por receta y un tiempo de estabilización de 1,0 s en la báscula. Falta confirmar la escala de la señal de peso, los pesos objetivo, la secuencia PASS/REJECT y la validación del hardware.
-- **Célula de packaging:** la cinemática final y la secuencia siguen pendientes de decisión.
+- Confirmar en TIA Portal los contadores por formato y completar su implementación y validación.
+- Verificar los actuadores del cabezal y el retenedor en Machine Simulator y TIA Portal.
+- Confirmar señal, escala, unidad, tara y valores objetivo de la báscula antes de implementar PASS/REJECT.
+- Revisar el mapa vigente de tags y resolver las colisiones históricas indicadas en la bitácora.
+- Decidir la cinemática de packaging y planificar una prueba con un S7-1500 físico.
 
-## Demostraciones y documentación de ingeniería
+## Demostraciones y documentación
 
-- [Índice de vídeos y enlaces externos](docs/videos/README.md). Los vídeos originales se retiraron de Git; aún faltan los enlaces externos y las miniaturas GIF de las estaciones.
+- [Vídeos y enlaces de visualización](docs/videos/README.md)
 - [Diagrama GRAFCET de la estación buffer](docs/diagrams/GRAFCET_BufferStation.jpg)
 - [Escena de Machine Simulator](machine_simulator/GemeloDigitalEnsamblado.maq)
-- [Contexto maestro del proyecto](CONTEXTO_MAESTRO.md)
+- [Contexto maestro](CONTEXTO_MAESTRO.md)
 - [Hitos del proyecto](HITOS.md)
-- [Lista de tareas para la próxima sesión](docs/internal/TAREAS_PENDIENTES.md)
-- [Exportaciones de texto de TIA Portal](tia_portal/exports/scl/)
+- [Tareas pendientes](docs/internal/TAREAS_PENDIENTES.md)
+- [Exportaciones SCL de TIA Portal](tia_portal/exports/scl/)
 - [Estado de la copia de seguridad de TIA Portal](tia_portal/project_backup/README.md)
+
+El archivo comprimido oficial de TIA Portal en formato `.zap21` está pendiente de subir; consulta el [estado del backup](tia_portal/project_backup/README.md).
 
 ## Estructura del repositorio
 
@@ -58,7 +76,7 @@ Todas las E/S digitales de proceso entre TIA Portal y Machine Simulator / HIL co
 ├── platformio.ini
 ├── docs/
 │   ├── diagrams/
-│   ├── internal/agentes/
+│   ├── internal/
 │   └── videos/
 ├── include/
 ├── machine_simulator/
@@ -66,4 +84,6 @@ Todas las E/S digitales de proceso entre TIA Portal y Machine Simulator / HIL co
 └── tia_portal/
 ```
 
-Las reglas del proyecto prohíben subir credenciales al repositorio. Copia `include/secrets.example.h` como `include/secrets.h` (archivo ignorado por Git) y guarda allí las credenciales locales. En este repositorio aún no se ha generado el archivo de archivo de TIA: un archivo `.ap21` existente no sustituye a una copia comprimida válida de Siemens en formato `.zap21`.
+## Metodología y herramientas
+
+El autor es responsable del diseño, las decisiones técnicas y la validación en simulación. Se emplean asistentes de IA como apoyo para la documentación y la revisión de código.

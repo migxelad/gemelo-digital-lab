@@ -1,7 +1,7 @@
-# Internal project files
+# Archivos internos del proyecto
 
-- [Task list and next-session handoff](TAREAS_PENDIENTES.md)
-- [Shared AI/repository rules](agentes/AGENTS.md)
-- [Claude-specific entry point](agentes/CLAUDE.md)
+- [Lista de tareas y traspaso para la próxima sesión](TAREAS_PENDIENTES.md)
+- [Reglas compartidas para IA y repositorio](agentes/AGENTS.md)
+- [Punto de entrada específico para Claude](agentes/CLAUDE.md)
 
-These are project-maintenance documents; the engineering presentation is in the root README and master context.
+Estos documentos sirven para el mantenimiento del proyecto. La presentación de ingeniería se encuentra en el README de la raíz y en el contexto maestro.
