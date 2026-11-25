@@ -1,5 +1,7 @@
-# Backup de TIA Portal
+# Copia de seguridad de TIA Portal
 
-La carpeta está destinada a backups comprimidos de TIA Portal V21 con extensión `.zap21`.
+Esta carpeta está destinada a copias comprimidas de proyectos de TIA Portal V21 con extensión `.zap21`. La copia comprimida oficial está pendiente de generar y subir.
 
-El archivo versionado anteriormente como `SortreingByWeight.ap21` se ha eliminado porque es un proyecto/base de datos suelto, no un backup comprimido oficial.  Para completar este respaldo, exportar desde TIA Portal el proyecto `GemeloDigitalEnsamblado.maq` correspondiente a la célula vigente y guarda el archivo comprimido aquí, con un nombre descriptivo.
+Cuando esté disponible, contendrá el proyecto de TIA Portal correspondiente a la célula vigente. La escena de Machine Simulator (`GemeloDigitalEnsamblado.maq`) es un archivo independiente y no forma parte del proyecto TIA Portal.
+
+El archivo que anteriormente se llamó `SortreingByWeight.ap21` era un proyecto/base de datos suelto, no una copia comprimida oficial. No se incluye aquí como sustituto del `.zap21`.
